@@ -9,7 +9,7 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     version='0.1',
-    url='https://github.com/otaheri/MANO',
+    url='https://github.com/otaheri/bps_torch',
     author='Omid Taheri',
     author_email='omid.taheri@tuebingen.mpg.de',
     maintainer='Omid Taheri',
