@@ -29,6 +29,9 @@ class bps_torch():
     def __init__(self, bps_type='random_uniform', n_bps_points=1024, radius=1.,
            n_dims=3, random_seed=13, custom_basis=None, **kwargs):
 
+        if custom_basis is not None:
+            bps_type = 'custom'
+
         if bps_type == 'random_uniform':
             basis_set = sample_sphere_uniform(n_bps_points, n_dims=n_dims, radius=radius, random_seed=random_seed)
         elif bps_type == 'random_nonuniform':
@@ -50,11 +53,11 @@ class bps_torch():
 
         self.bps = basis_set.view(1,-1,n_dims)
 
-    def encode(self,x, feature_type=['dists','deltas'], x_features=None, custom_basis=None, **kwargs):
+    def encode(self,x, feature_type=['dists'], x_features=None, custom_basis=None, **kwargs):
 
 
         x = to_tensor(x).to(device)
-        is_batch = True if len(x.shape) > 1 else False
+        is_batch = True if len(x.shape) > 2 else False
 
         if not is_batch:
             x = x.unsqueeze(0)
@@ -75,26 +78,30 @@ class bps_torch():
             deltas[fid] = X[:,b2x_idx.to(torch.long)] - bps
             b2x_idxs[fid] = b2x_idx
 
-        x_bps = []
+        x_bps = {}
         if 'dists' in feature_type:
-            x_bps.append(torch.sqrt(torch.pow(deltas, 2).sum(2, keepdim=True)))
+            # x_bps.append(torch.sqrt(torch.pow(deltas, 2).sum(2, keepdim=True)))
+            x_bps['dists'] = torch.sqrt(torch.pow(deltas, 2).sum(2))
         if 'deltas' in feature_type:
-            x_bps.append(deltas)
+            # x_bps.append(deltas)
+            x_bps['deltas'] = deltas
         if 'closest' in feature_type:
             b2x_idxs_expanded = b2x_idxs.view(N, P_bps, 1).expand(N, P_bps, D)
-            x_bps.append(x.gather(1, b2x_idxs_expanded))
+            # x_bps.append(x.gather(1, b2x_idxs_expanded))
+            x_bps['closest'] = x.gather(1, b2x_idxs_expanded)
         if 'features' in feature_type:
             try:
                 F = x_features.shape[2]
                 b2x_idxs_expanded = b2x_idxs.view(N, P_bps, 1).expand(N, P_bps, F)
-                x_bps.append(x.gather(1, b2x_idxs_expanded))
+                # x_bps.append(x.gather(1, b2x_idxs_expanded))
+                x_bps['features'] = x.gather(1, b2x_idxs_expanded)
             except:
                 raise ValueError("No x_features parameter is provided!")
         if len(x_bps) < 1:
             raise ValueError("Invalid cell type. Supported types: \'dists\', \'deltas\', \'closest\', \'features\'")
 
-
-        return torch.cat(x_bps,dim=2)
+        # return torch.cat(x_bps,dim=2)
+        return x_bps
 
     def decode(self,x_deltas,custom_basis=None, **kwargs):
 
