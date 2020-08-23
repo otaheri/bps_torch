@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 setup(
     name='bps_torch',
     include_package_data=True,
     #packages=find_packages(),
-    description='A Pytorch Inplementation of bps 3D representation',
+    description='A Pytorch Inplementation of bps_torch 3D representation',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     version='0.1',
