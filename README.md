@@ -6,7 +6,7 @@ A Pytorch implementation of the [bps](https://github.com/sergeyprokudin/bps) rep
 
 ### Requirements
 
-- Python >= 3.7;
+- Python >= 3.7
 - PyTorch >= 1.1.0 
 - Numpy >= 1.16.2
 
