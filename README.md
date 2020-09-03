@@ -29,8 +29,37 @@ pip install git+https://github.com/otaheri/bps_torch
 
 ### Demos
 
-#### Coming Soon ...
+Below is an example of how to use the bps_torch code.
 
+```
+import torch
+import time
+from bps_torch.bps import bps_torch
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# initiate the bps module
+bps = bps_torch(bps_type='random_uniform',
+                n_bps_points=1024,
+                radius=1.,
+                n_dims=3,
+                custom_basis=None)
+
+pointcloud = torch.rand([1000000,3]).to(device)
+
+s = time.time()
+
+bps_enc = bps.encode(pointcloud,
+                     feature_type=['dists','deltas'],
+                     x_features=None,
+                     custom_basis=None)
+
+print(time.time() - s)
+
+deltas = bps_enc['deltas']
+bps_dec = bps.decode(deltas)
+
+```
 
 ## Citation
 
