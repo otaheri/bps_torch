@@ -26,8 +26,14 @@ from .tools import normalize, denormalize
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class bps_torch():
-    def __init__(self, bps_type='random_uniform', n_bps_points=1024, radius=1.,
-           n_dims=3, random_seed=13, custom_basis=None, **kwargs):
+    def __init__(self,
+                 bps_type='random_uniform',
+                 n_bps_points=1024,
+                 radius=1.,
+                 n_dims=3,
+                 random_seed=13,
+                 custom_basis=None,
+                 **kwargs):
 
         if custom_basis is not None:
             bps_type = 'custom'
@@ -53,11 +59,16 @@ class bps_torch():
 
         self.bps = basis_set.view(1,-1,n_dims)
 
-    def encode(self,x, feature_type=['dists'], x_features=None, custom_basis=None, **kwargs):
+    def encode(self,
+               x,
+               feature_type=['dists'],
+               x_features=None,
+               custom_basis=None,
+               **kwargs):
 
 
         x = to_tensor(x).to(device)
-        is_batch = True if len(x.shape) > 2 else False
+        is_batch = True if x.ndim > 2 else False
 
         if not is_batch:
             x = x.unsqueeze(0)
@@ -103,10 +114,13 @@ class bps_torch():
         # return torch.cat(x_bps,dim=2)
         return x_bps
 
-    def decode(self,x_deltas,custom_basis=None, **kwargs):
+    def decode(self,
+               x_deltas,
+               custom_basis=None,
+               **kwargs):
 
         x = to_tensor(x_deltas).to(device)
-        is_batch = True if len(x.shape) > 1 else False
+        is_batch = True if x.ndim > 2 else False
 
         if not is_batch:
             x = x.unsqueeze(dim=0)
