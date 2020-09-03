@@ -9,6 +9,7 @@ A Pytorch implementation of the [bps](https://github.com/sergeyprokudin/bps) rep
 - Python >= 3.7
 - PyTorch >= 1.1.0 
 - Numpy >= 1.16.2
+- [chamfer_distance](https://github.com/otaheri/chamfer_distance)
 
 ### Installation
 
