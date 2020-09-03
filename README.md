@@ -13,10 +13,16 @@ A Pytorch implementation of the [bps](https://github.com/sergeyprokudin/bps) rep
 
 ### Installation
 
+If PyTorch is not installed run the following line:
 ```
-pip install git+git://github.com/otaheri/chamfer_distance.git
+pip install torch==1.5.1+cpu torchvision==0.6.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
 ```
+To install the chamfer_distance package run:
 
+```
+pip install git+https://github.com/otaheri/chamfer_distance
+```
+Finally install the package using the command below:
 ```
 pip install git+https://github.com/otaheri/bps_torch
 ```
