@@ -19,7 +19,6 @@ setup(
           'numpy>=1.16.2',
           'torch>=1.0.1.post2',
           'torchgeometry>=0.1.2',
-          'git+git://github.com/otaheri/chamfer_distance.git'
       ],
     packages=['bps_torch']
       
