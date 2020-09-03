@@ -15,7 +15,7 @@ A Pytorch implementation of the [bps](https://github.com/sergeyprokudin/bps) rep
 
 If PyTorch is not installed run the following line:
 ```
-pip install torch==1.5.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+ pip install torch==1.5.1+cpu torchvision==0.6.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
 ```
 To install the chamfer_distance package run:
 
