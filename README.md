@@ -13,6 +13,9 @@ A Pytorch implementation of the [bps](https://github.com/sergeyprokudin/bps) rep
 
 ### Installation
 
+```
+pip install git+git://github.com/otaheri/chamfer_distance.git
+```
 
 ```
 pip install git+https://github.com/otaheri/bps_torch
