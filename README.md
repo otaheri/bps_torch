@@ -31,7 +31,7 @@ pip install git+https://github.com/otaheri/bps_torch
 
 Below is an example of how to use the bps_torch code.
 
-```
+```python
 import torch
 import time
 from bps_torch.bps import bps_torch
