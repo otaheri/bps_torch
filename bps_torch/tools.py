@@ -182,11 +182,11 @@ def sample_grid_sphere(n_points=1000, n_dims=3, radius=1.0):
     grid_size = int(np.power(grid_points, 1 / n_dims))
     in_sphere_points = 0
     while in_sphere_points < n_points:
-        c_grid = sample_grid_cube(grid_size=grid_size) * radius
+        c_grid = to_np(sample_grid_cube(grid_size=grid_size) * radius)
         in_sphere_points = np.where(np.linalg.norm(c_grid, axis=1) < radius)[0].shape[0]
         grid_size += 1
 
-    c_grid = sample_grid_cube(grid_size=grid_size - 2) * radius
+    c_grid = to_np(sample_grid_cube(grid_size=grid_size - 2) * radius)
     in_sphere = np.where(np.linalg.norm(c_grid, axis=1) < radius)[0]
     on_sphere_size = n_points - in_sphere.shape[0]
     in_sp = c_grid[in_sphere]
