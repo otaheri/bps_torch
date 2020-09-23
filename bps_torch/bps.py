@@ -51,7 +51,7 @@ class bps_torch():
         elif bps_type == 'custom':
             # in case of a grid basis, we need to find the nearest possible grid size
             if custom_basis is not None:
-                basis_set = custom_basis
+                basis_set = to_tensor(custom_basis).to(device)
             else:
                 raise ValueError("Custom BPS arrangement selected, but no custom_basis provided.")
         else:
