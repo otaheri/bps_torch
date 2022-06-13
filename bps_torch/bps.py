@@ -23,7 +23,12 @@ from .tools import sample_sphere_nonuniform
 from .tools import sample_sphere_uniform
 from .tools import normalize, denormalize
 
+from .tools import point2surface
+from pytorch3d.structures import Meshes, Pointclouds
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# torch.multiprocessing.set_start_method('spawn', force=True)
+
 
 class bps_torch():
     def __init__(self,
@@ -51,15 +56,35 @@ class bps_torch():
         elif bps_type == 'custom':
             # in case of a grid basis, we need to find the nearest possible grid size
             if custom_basis is not None:
-                basis_set = custom_basis
+                basis_set = to_tensor(custom_basis).to(device)
             else:
                 raise ValueError("Custom BPS arrangement selected, but no custom_basis provided.")
         else:
             raise ValueError("Invalid basis type. Supported types: \'random_uniform\', \'random_nonuniform\', \'grid_cube\', \'grid_sphere\', and \'custom\'")
 
-        self.bps = basis_set.view(1,-1,n_dims)
+        self.bps = basis_set.reshape(1,-1,n_dims)
 
-    def encode(self,
+    def enc_mesh(self,
+               x,
+               feature_type=['dists'],
+               custom_basis=None,
+               **kwargs):
+
+        bps = self.bps if custom_basis is None else custom_basis
+        bps = to_tensor(bps).to(device)
+
+        N = len(x)
+
+        scale = 1000.
+        bps_pc = Pointclouds(points=to_tensor(bps * scale).to(device).repeat(N, 1, 1))
+        b2o = point2surface(x, bps_pc)
+
+        if 'dists' not in feature_type:
+            print('bps_torch currently only supports dists!')
+
+        return {'dists': b2o.reshape(N,-1)}
+
+    def enc_points(self,
                x,
                feature_type=['dists'],
                x_features=None,
@@ -75,7 +100,7 @@ class bps_torch():
 
         bps = self.bps if custom_basis is None else custom_basis
         bps = to_tensor(bps).to(device)
-        _, P_bps, D = bps.shape
+        Nb, P_bps, D = bps.shape
         N, P_x  , D = x.shape
 
         deltas = torch.zeros([N, P_bps, D]).to(device)
@@ -84,9 +109,13 @@ class bps_torch():
         ch_dist = chd.ChamferDistance()
 
         for fid in range(0, N):
+            if Nb==N:
+                Y = bps[fid:fid+1]
+            else:
+                Y = bps
             X = x[fid:fid+1]
-            b2x, x2b, b2x_idx, x2b_idx = ch_dist(bps, X)
-            deltas[fid] = X[:,b2x_idx.to(torch.long)] - bps
+            b2x, x2b, b2x_idx, x2b_idx = ch_dist(Y, X)
+            deltas[fid] = X[:,b2x_idx.to(torch.long)] - Y
             b2x_idxs[fid] = b2x_idx
 
         x_bps = {}
@@ -112,6 +141,27 @@ class bps_torch():
             raise ValueError("Invalid cell type. Supported types: \'dists\', \'deltas\', \'closest\', \'features\'")
 
         # return torch.cat(x_bps,dim=2)
+        x_bps['ids'] = b2x_idxs
+        return x_bps
+
+    def encode(self,
+               x,
+               feature_type=['dists'],
+               x_features=None,
+               custom_basis=None,
+               **kwargs):
+        if torch.is_tensor(x):
+            x_bps = self.enc_points(x,
+                                    feature_type,
+                                    x_features,
+                                    custom_basis)
+        elif isinstance(x, Meshes):
+            x_bps = self.enc_mesh(x,
+                                  feature_type,
+                                  custom_basis)
+        else:
+            raise ('Please enter either pointcloud or meshes to compute bps!')
+
         return x_bps
 
     def decode(self,
