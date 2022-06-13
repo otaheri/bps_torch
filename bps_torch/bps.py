@@ -177,7 +177,7 @@ class bps_torch():
 
         bps = self.bps if custom_basis is None else custom_basis
         bps = to_tensor(bps).to(device)
-        if len(bps)<2:
+        if len(bps.shape)<2:
             bps = bps.unsqueeze(dim=0)
 
         _, P_bps, D = bps.shape
