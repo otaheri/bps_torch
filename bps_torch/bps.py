@@ -106,7 +106,7 @@ class bps_torch():
         deltas = torch.zeros([N, P_bps, D]).to(device)
         b2x_idxs = torch.zeros([N, P_bps],dtype=torch.long).to(device)
 
-        ch_dist = chd.ChamferDistance()
+        ch_dist = chd.ChamferDistance
 
         for fid in range(0, N):
             if Nb==N:
