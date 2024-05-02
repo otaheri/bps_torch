@@ -14,7 +14,8 @@
 
 import torch
 import numpy as np
-import chamfer_distance as chd
+from zmq import device
+from .chamfer import chamfer_distance as chd
 
 from .utils import to_np, to_tensor
 from .tools import sample_grid_cube
@@ -26,7 +27,7 @@ from .tools import normalize, denormalize
 from .tools import point2surface
 from pytorch3d.structures import Meshes, Pointclouds
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # torch.multiprocessing.set_start_method('spawn', force=True)
 
 
@@ -56,7 +57,7 @@ class bps_torch():
         elif bps_type == 'custom':
             # in case of a grid basis, we need to find the nearest possible grid size
             if custom_basis is not None:
-                basis_set = to_tensor(custom_basis).to(device)
+                basis_set = to_tensor(custom_basis)
             else:
                 raise ValueError("Custom BPS arrangement selected, but no custom_basis provided.")
         else:
@@ -69,7 +70,9 @@ class bps_torch():
                feature_type=['dists'],
                custom_basis=None,
                **kwargs):
-
+        device = x[0].device
+        if device.type == 'cpu':
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         bps = self.bps if custom_basis is None else custom_basis
         bps = to_tensor(bps).to(device)
 
@@ -91,7 +94,9 @@ class bps_torch():
                custom_basis=None,
                **kwargs):
 
-
+        device = x.device
+        if device.type == 'cpu':
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         x = to_tensor(x).to(device)
         is_batch = True if x.ndim > 2 else False
 
@@ -106,7 +111,7 @@ class bps_torch():
         deltas = torch.zeros([N, P_bps, D]).to(device)
         b2x_idxs = torch.zeros([N, P_bps],dtype=torch.long).to(device)
 
-        ch_dist = chd.ChamferDistance()
+        ch_dist = chd
 
         for fid in range(0, N):
             if Nb==N:
@@ -129,6 +134,7 @@ class bps_torch():
             b2x_idxs_expanded = b2x_idxs.view(N, P_bps, 1).expand(N, P_bps, D)
             # x_bps.append(x.gather(1, b2x_idxs_expanded))
             x_bps['closest'] = x.gather(1, b2x_idxs_expanded)
+            x_bps['closest_ids'] = b2x_idxs_expanded
         if 'features' in feature_type:
             try:
                 F = x_features.shape[2]
@@ -169,6 +175,9 @@ class bps_torch():
                custom_basis=None,
                **kwargs):
 
+        device = x_deltas.device
+        if device.type == 'cpu':
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         x = to_tensor(x_deltas).to(device)
         is_batch = True if x.ndim > 2 else False
 
