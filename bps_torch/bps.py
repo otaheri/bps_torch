@@ -14,7 +14,6 @@
 
 import torch
 import numpy as np
-from zmq import device
 import chamfer_distance as chd
 
 from .utils import to_np, to_tensor
