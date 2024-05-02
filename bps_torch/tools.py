@@ -182,6 +182,56 @@ def sample_sphere_uniform(n_points=1000, n_dims=3, radius=1.0, random_seed=13):
     np.random.seed(None)
     return to_tensor(x).to(device)
 
+def sample_hemisphere_uniform(n_points=1000, n_dims=3, radius=1.0, random_seed=13, axis='-x'):
+    """Sample uniformly from d-dimensional unit ball
+
+    The code is inspired by this small note:
+    https://blogs.sas.com/content/iml/2016/04/06/generate-points-uniformly-in-ball.html
+
+    Parameters
+    ----------
+    n_points : int
+        number of samples
+    n_dims : int
+        number of dimensions
+    radius: float
+        ball radius
+    random_seed: int
+        random seed for basis point selection
+    Returns
+    -------
+    x : numpy array
+        points sampled from d-ball
+    """
+    np.random.seed(random_seed)
+    # sample point from d-sphere
+    x = np.random.normal(size=[2*n_points, n_dims])
+    x_norms = np.sqrt(np.sum(np.square(x), axis=1)).reshape([-1, 1])
+    x_unit = x / x_norms
+    # now sample radiuses uniformly
+    r = np.random.uniform(size=[2*n_points, 1])
+    u = np.power(r, 1.0 / n_dims)
+    x = radius * x_unit * u
+    np.random.seed(None)
+
+    if axis == '-x':
+        p = x[x[:,0].argsort()][:n_points,:]
+    elif axis == '+x':
+        p = x[x[:,0].argsort()][-n_points:,:]
+    elif axis == '-y':
+        p = x[x[:,1].argsort()][:n_points,:]
+    elif axis == '+y':
+        p = x[x[:,1].argsort()][-n_points:,:]
+    elif axis == '-z':
+        p = x[x[:,2].argsort()][:n_points,:]
+    elif axis == '+z':
+        p = x[x[:,2].argsort()][-n_points:,:]
+    else:
+        raise ValueError('axis must be one of -x, +x, -y, +y, -z, +z')
+
+    return to_tensor(p).to(device)
+
+
 def sample_sphere_nonuniform(n_points=1000, n_dims=3, radius=1.0, random_seed=13):
     """Sample nonuniformly from d-dimensional unit ball
 
