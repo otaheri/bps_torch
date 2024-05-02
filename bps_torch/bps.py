@@ -15,7 +15,7 @@
 import torch
 import numpy as np
 from zmq import device
-from .chamfer import chamfer_distance as chd
+import chamfer_distance as chd
 
 from .utils import to_np, to_tensor
 from .tools import sample_grid_cube
@@ -111,7 +111,7 @@ class bps_torch():
         deltas = torch.zeros([N, P_bps, D]).to(device)
         b2x_idxs = torch.zeros([N, P_bps],dtype=torch.long).to(device)
 
-        ch_dist = chd
+        ch_dist = chd.ChamferDistance()
 
         for fid in range(0, N):
             if Nb==N:
