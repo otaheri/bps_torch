@@ -165,7 +165,8 @@ class bps_torch():
                                   feature_type,
                                   custom_basis)
         else:
-            raise ('Please enter either pointcloud or meshes to compute bps!')
+            raise ValueError("Invalid input: Please give either 'pointclouds' or 'meshes' as the argument to compute BPS.")
+
 
         return x_bps
 
